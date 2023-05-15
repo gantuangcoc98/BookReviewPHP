@@ -5,7 +5,7 @@ session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "bookreviewphp";
+$dbname = "bookreview";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -61,7 +61,3 @@ $categories = $result->fetch_all(MYSQLI_ASSOC);
     </nav>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>

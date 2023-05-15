@@ -1,11 +1,5 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "bookreviewphp";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+include 'header.php';
 
 // Check connection
 if ($conn->connect_error) {

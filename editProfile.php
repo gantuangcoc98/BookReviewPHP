@@ -11,9 +11,8 @@ if(!isset($_SESSION['username'])) {
 }
 
 // Get the user's information from the database
-$mysqli = new mysqli('localhost', 'root', '', 'bookreview') or die(mysqli_error($mysqli));
 $username = $_SESSION['username'];
-$result = $mysqli->query("SELECT * FROM tbluseraccount WHERE username='$username'") or die($mysqli->error);
+$result = $conn->query("SELECT * FROM tbluseraccount WHERE username='$username'") or die($conn->error);
 $row = $result->fetch_assoc();
 
 // Handle form submission
@@ -25,7 +24,7 @@ if(isset($_POST['submit'])) {
     $lastname = $_POST['lastname'];
 
     // Update the user's information in the database
-    $mysqli->query("UPDATE tbluseraccount SET username='$username', password='$password', firstname='$firstname', lastname='$lastname' WHERE username='$username'") or die($mysqli->error);
+    $conn->query("UPDATE tbluseraccount SET username='$username', password='$password', firstname='$firstname', lastname='$lastname' WHERE username='$username'") or die($mysqli->error);
 
     // Redirect back to the home page
     header("Location: index.php");

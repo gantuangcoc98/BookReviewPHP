@@ -1,9 +1,8 @@
 <?php
-require_once 'header.php';
+include 'header.php';
 
 // Fetch validated reviews from the database
-$mysqli = new mysqli('localhost', 'root', '', 'bookreview') or die(mysqli_error($mysqli));
-$result = $mysqli->query("SELECT * FROM tblreview WHERE Status = 1") or die($mysqli->error);
+$result = $conn->query("SELECT * FROM tblreview WHERE Status = 1") or die($mysqli->error);
 ?>
 
 <!DOCTYPE html>
@@ -60,7 +59,7 @@ $result = $mysqli->query("SELECT * FROM tblreview WHERE Status = 1") or die($mys
         while ($row = $result->fetch_assoc()) {
             // Fetch book details for the review
             $bookID = $row['Book_Key'];
-            $bookResult = $mysqli->query("SELECT * FROM tblbook WHERE Book_Key = $bookID") or die($mysqli->error);
+            $bookResult = $conn->query("SELECT * FROM tblbook WHERE Book_Key = $bookID") or die($conn->error);
             $book = $bookResult->fetch_assoc();
 
             echo '<div class="review-box">';
