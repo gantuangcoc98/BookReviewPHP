@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 13, 2023 at 05:10 PM
+-- Generation Time: May 19, 2023 at 04:51 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `bookreview`
+-- Database: `bookreviewphp`
 --
 
 -- --------------------------------------------------------
@@ -63,7 +63,8 @@ INSERT INTO `tblbook` (`Book_Key`, `Title`, `Category_Key`, `ISBN`, `Authors_Fir
 (18, 'The Wind-Up Bird Chronicle', 10, '9780812979657', 'Haruki', 'Murakami', '', ''),
 (19, 'Sapien', 7, '9781400052189 ', 'Yuval', 'Noah', '', ''),
 (20, 'One Piece', 1, '9780307949486', 'Oshiro', 'Oda', '', ''),
-(21, 'The Added Book', 1, '9780307949422', 'John Quinnvic', 'Taboada', '', '');
+(21, 'The Added Book', 1, '9780307949422', 'John Quinnvic', 'Taboada', '', ''),
+(25, 'The New Cat', 18, '123456', 'Cat', 'Cat', 'meooww', '');
 
 -- --------------------------------------------------------
 
@@ -124,7 +125,7 @@ INSERT INTO `tblreview` (`Review_ID`, `Book_Key`, `Username`, `Date`, `Time`, `T
 (1, 1, 'admin', 'May 16,2002', '05:16 PM', 'Complex', 'It is very amazing how complex the novel is. I would love to reread this again', 5, 1),
 (4, 1, 'JoeTestUser', '2023-05-13', '16:55:51', 'It\'s actually Phenomenal', 'Amazing if I may say so myself', 5, 1),
 (6, 2, 'TestMod', '2023-05-13', '17:20:29', 'SupahAmazing', 'It\'s good as hell. Love love', 5, 1),
-(9, 4, 'TestMod', '2023-05-13', '22:40:06', 'Titi', 'Titi', 5, 1);
+(12, 1, 'mod', '2023-05-19', '10:45:59', 'The book is nice', 'The book is nice', 5, 1);
 
 -- --------------------------------------------------------
 
@@ -147,9 +148,11 @@ CREATE TABLE `tbluseraccount` (
 --
 
 INSERT INTO `tbluseraccount` (`Firstname`, `Lastname`, `Username`, `Password`, `userType`, `Email`, `Status`) VALUES
-('admin', 'admin', 'admin', 'admin', 2, '', 0),
-('Joe', 'Ed', 'JoeTestUser', 'JoeTestUser', 0, 'JoeTestUser@gmail.com', 0),
-('mod', 'mod', 'TestMod', 'mod', 1, 'Testmod@gmail.com', 0);
+('Admin', 'Admin', 'admin', 'admin', 2, 'admin@admin.com', 0),
+('admin', 'admin', 'admin2', 'admin', 2, 'admin@admin.com', 0),
+('Mod', 'Mod', 'mod', 'mod', 1, 'mod@mod.com', 0),
+('Christian Benedict', 'Gantuangco', 'user', 'user', 0, 'gantuangco@email.com', 0),
+('John', 'Doe', 'user2', 'user', 0, 'jd@email.com', 0);
 
 --
 -- Indexes for dumped tables
@@ -187,7 +190,7 @@ ALTER TABLE `tbluseraccount`
 -- AUTO_INCREMENT for table `tblbook`
 --
 ALTER TABLE `tblbook`
-  MODIFY `Book_Key` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `Book_Key` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `tblcategory`
@@ -199,7 +202,7 @@ ALTER TABLE `tblcategory`
 -- AUTO_INCREMENT for table `tblreview`
 --
 ALTER TABLE `tblreview`
-  MODIFY `Review_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Review_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
