@@ -1,35 +1,24 @@
 <?php
-include 'header.php';
+    include 'header.php';
 
+    if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+        header("location: login.php");
+        exit;
+    }
 
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("location: login.php");
-    exit;
-}
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "bookreview";
+    $sql = "SELECT userType FROM tbluseraccount WHERE Username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $_SESSION['username']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-$sql = "SELECT userType FROM tbluseraccount WHERE Username = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $_SESSION['username']);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-
-$userType = $row['userType'];
-
-
+    $userType = $row['userType'];
 ?>
 
 <div class="container">

@@ -1,18 +1,19 @@
 <?php
-// Start the session
-require_once 'header.php';
 
-// Check if the user is a moderator or userType 1
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
+    // Start the session
+    require_once 'header.php';
 
-$title = 'Validate Review';
 
-// Fetch unvalidated reviews from the database
-$mysqli = new mysqli('localhost', 'root', '', 'bookreview') or die(mysqli_error($mysqli));
-$result = $mysqli->query("SELECT * FROM tblreview WHERE Status = 0") or die($mysqli->error);
+    // Check if the user is a moderator or userType 1
+    if (!isset($_SESSION['username'])) {
+        header("Location: login.php");
+        exit();
+    }
+
+    $title = 'Validate Review';
+
+    // Fetch unvalidated reviews from the database
+    $result = $conn->query("SELECT * FROM tblreview WHERE Status = 0") or die($conn->error);
 ?>
 
 <!DOCTYPE html>

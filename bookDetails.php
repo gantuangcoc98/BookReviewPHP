@@ -1,39 +1,32 @@
 <?php
-include 'header.php';
+    include 'header.php';
 
-// Retrieve the Book_Key from the query parameters
-$bookKey = $_GET['Book_Key'];
+    // Retrieve the Book_Key from the query parameters
+    $bookKey = $_GET['Book_Key'];
 
-// Fetch book details from the database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "bookreview";
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+    // Prepare the SQL statement to fetch book details
+    $sql = "SELECT b.*, c.Category_Name FROM tblbook b
+            JOIN tblcategory c ON b.Category_Key = c.Category_Key
+            WHERE b.Book_Key = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $bookKey);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+    if ($result->num_rows > 0) {
+        // Fetch the book details
+        $book = $result->fetch_assoc();
+    }
+?>
 
-// Prepare the SQL statement to fetch book details
-$sql = "SELECT b.*, c.Category_Name FROM tblbook b
-        JOIN tblcategory c ON b.Category_Key = c.Category_Key
-        WHERE b.Book_Key = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $bookKey);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    // Fetch the book details
-    $book = $result->fetch_assoc();
-
-    ?>
     <!DOCTYPE html>
     <html>
+
     <head>
         <style>
             body {
@@ -114,6 +107,7 @@ if ($result->num_rows > 0) {
             }
         </style>
     </head>
+
     <body>
         <div class="container">
             <div class="book-details">
@@ -125,43 +119,39 @@ if ($result->num_rows > 0) {
             </div>
 
             <div class="review-container">
-               
-            <?php
-}
-// Prepare the SQL statement to fetch reviews
-$sql = "SELECT * FROM tblreview WHERE Book_Key = ? AND Status = 1";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $bookKey);
-$stmt->execute();
-$result = $stmt->get_result();
 
-// Fetch the reviews
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        // Display the review details
-        echo '<div class="review">';
-        echo '<p><strong>Username: </strong>' . $row['Username'] . '</p>';
-        echo '<p><strong>Title: </strong>' . $row['Title'] . '</p>';
-        echo '<p><strong>Review: </strong>' . $row['Review'] . '</p>';
-        echo '<p><strong>Rating: </strong>' . $row['Rating'] . '</p>';
-        echo '<p><strong>Date, Time: </strong>' . $row['Date'] . ', ' . $row['Time'] . '</p>';
-        echo '</div>';
+<?php
+
+    // Prepare the SQL statement to fetch reviews
+    $sql = "SELECT * FROM tblreview WHERE Book_Key = ? AND Status = 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $bookKey);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+
+    // Fetch the reviews
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            // Display the review details
+            echo '<div class="review">';
+            echo '<p><strong>Username: </strong>' . $row['Username'] . '</p>';
+            echo '<p><strong>Title: </strong>' . $row['Title'] . '</p>';
+            echo '<p><strong>Review: </strong>' . $row['Review'] . '</p>';
+            echo '<p><strong>Rating: </strong>' . $row['Rating'] . '</p>';
+            echo '<p><strong>Date, Time: </strong>' . $row['Date'] . ', ' . $row['Time'] . '</p>';
+            echo '</div>';
+        }
     }
-} else {
-    
-}
 
+    // Display the "Add a review" button if the user is logged in
+    if (isset($_SESSION['username'])) {
+        echo '<br><a href="addReview.php?Book_Key=' . $bookKey . '" class="add-review-button">Add a Review</a>';
+    }
 
-// Display the "Add a review" button if the user is logged in
-if (isset($_SESSION['username'])) {
-    echo '<a href="addReview.php?Book_Key=' . $bookKey . '" class="add-review-button">Add a Review</a>';
-}
+    echo '</div></body></html>';
 
-include 'footer.php';
-
-echo '</div></body></html>';
-
-$stmt->close();
-$conn->close();
-include 'footer.php';
+    $stmt->close();
+    $conn->close();
+    include 'footer.php';
 ?>

@@ -1,42 +1,34 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "bookreview";
+    require_once 'header.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+    // Check if category key is provided in the URL
+    if (isset($_GET['Category_Key'])) {
+        $categoryKey = $_GET['Category_Key'];
 
-// Check if category key is provided in the URL
-if (isset($_GET['Category_Key'])) {
-    $categoryKey = $_GET['Category_Key'];
+        // Retrieve category name
+        $categorySql = "SELECT Category_Name FROM tblcategory WHERE Category_Key = ?";
+        $stmt = $conn->prepare($categorySql);
+        $stmt->bind_param("i", $categoryKey);
+        $stmt->execute();
+        $categoryResult = $stmt->get_result();
+        $categoryRow = $categoryResult->fetch_assoc();
+        $categoryName = $categoryRow['Category_Name'];
 
-    // Retrieve category name
-    $categorySql = "SELECT Category_Name FROM tblcategory WHERE Category_Key = ?";
-    $stmt = $conn->prepare($categorySql);
-    $stmt->bind_param("i", $categoryKey);
-    $stmt->execute();
-    $categoryResult = $stmt->get_result();
-    $categoryRow = $categoryResult->fetch_assoc();
-    $categoryName = $categoryRow['Category_Name'];
-
-    // Retrieve books for the selected category using a join between tblbook and tblcategory
-    $booksSql = "SELECT b.* FROM tblbook b
-                 JOIN tblcategory c ON b.Category_Key = c.Category_Key
-                 WHERE c.Category_Key = ?";
-    $stmt = $conn->prepare($booksSql);
-    $stmt->bind_param("i", $categoryKey);
-    $stmt->execute();
-    $booksResult = $stmt->get_result();
-    $books = $booksResult->fetch_all(MYSQLI_ASSOC);
-}
-
-include 'header.php';
+        // Retrieve books for the selected category using a join between tblbook and tblcategory
+        $booksSql = "SELECT b.* FROM tblbook b
+                    JOIN tblcategory c ON b.Category_Key = c.Category_Key
+                    WHERE c.Category_Key = ?";
+        $stmt = $conn->prepare($booksSql);
+        $stmt->bind_param("i", $categoryKey);
+        $stmt->execute();
+        $booksResult = $stmt->get_result();
+        $books = $booksResult->fetch_all(MYSQLI_ASSOC);
+    }
 ?>
 
 <style>

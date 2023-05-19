@@ -61,7 +61,3 @@ $categories = $result->fetch_all(MYSQLI_ASSOC);
     </nav>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>
