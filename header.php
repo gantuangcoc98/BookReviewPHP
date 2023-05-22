@@ -5,17 +5,15 @@ session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "bookreviewphp";
+$dbname = "bookreview";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch categories
 $sql = "SELECT * FROM tblcategory";
 $result = $conn->query($sql);
 $categories = $result->fetch_all(MYSQLI_ASSOC);
@@ -61,3 +59,7 @@ $categories = $result->fetch_all(MYSQLI_ASSOC);
     </nav>
 </body>
 </html>
+
+<?php
+$conn->close();
+?>

@@ -1,32 +1,35 @@
 <?php
-    include 'header.php';
+include 'header.php';
 
-    // Retrieve the Book_Key from the query parameters
-    $bookKey = $_GET['Book_Key'];
+$bookKey = $_GET['Book_Key'];
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "bookreview";
 
-    // Prepare the SQL statement to fetch book details
-    $sql = "SELECT b.*, c.Category_Name FROM tblbook b
-            JOIN tblcategory c ON b.Category_Key = c.Category_Key
-            WHERE b.Book_Key = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $bookKey);
-    $stmt->execute();
-    $result = $stmt->get_result();
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-    if ($result->num_rows > 0) {
-        // Fetch the book details
-        $book = $result->fetch_assoc();
-    }
-?>
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
+$sql = "SELECT b.*, c.Category_Name, AVG(r.Rating) AS AverageRating, COUNT(r.Review_ID) AS ReviewCount
+        FROM tblbook b
+        JOIN tblcategory c ON b.Category_Key = c.Category_Key
+        LEFT JOIN tblreview r ON b.Book_Key = r.Book_Key AND r.Status = 1
+        WHERE b.Book_Key = ?
+        GROUP BY b.Book_Key";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $bookKey);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $book = $result->fetch_assoc();
+    ?>
     <!DOCTYPE html>
     <html>
-
     <head>
         <style>
             body {
@@ -105,9 +108,22 @@
             .add-review-button:hover {
                 background-color: #45a049;
             }
+
+            .delete-btn {
+                margin-top: 10px;
+                padding: 5px 10px;
+                background-color: #FF0000;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .delete-btn:hover {
+                background-color: #CC0000;
+            }
         </style>
     </head>
-
     <body>
         <div class="container">
             <div class="book-details">
@@ -116,42 +132,58 @@
                 <p><strong>ISBN:</strong> <?php echo $book['ISBN']; ?></p>
                 <p><strong>Author:</strong> <?php echo $book['Authors_Firstname'] . ' ' . $book['Authors_Lastname']; ?></p>
                 <p><strong>Description:</strong> <?php echo $book['description']; ?></p>
+                <p><strong>Average Rating:</strong> <?php echo number_format($book['AverageRating'], 2); ?>/5</p>
+                <p><strong>Number of Reviews:</strong> <?php echo $book['ReviewCount']; ?></p>
+                
+                <?php
+                if (isset($_SESSION['userType']) && $_SESSION['userType'] == 2) {
+                    echo '<form action="deleteBook.php" method="post">';
+                    echo '<input type="hidden" name="book_key" value="' . $book['Book_Key'] . '">';
+                    echo '<button class="delete-btn" type="submit" name="delete">Delete Book</button>';
+                    echo '</form>';
+                }
+                ?>
+                
             </div>
 
             <div class="review-container">
+                <?php
+                $sql = "SELECT * FROM tblreview WHERE Book_Key = ? AND Status = 1";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $bookKey);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-<?php
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        echo '<div class="review">';
+                        echo '<p class="username"> ' . $row['Username'] . '</p>';
+                        echo '<p class="review-title"><strong>Title:</strong> ' . $row['Title'] . '</p>';
+                        echo '<p class="rating"><strong>Rating:</strong> ' . $row['Rating'] . '/5</p>';
+                        echo '<p class="review-date">' . $row['Date'] . ', ' . $row['Time'] . '</p>';
+                        echo '<p class="review-content">' . $row['Review'] . '</p>';
+                        echo '</div>';
+                    }
+                } else {
+                    // No reviews available
+                }
 
-    // Prepare the SQL statement to fetch reviews
-    $sql = "SELECT * FROM tblreview WHERE Book_Key = ? AND Status = 1";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $bookKey);
-    $stmt->execute();
-    $result = $stmt->get_result();
+                if (isset($_SESSION['username'])) {
+                    echo '<a href="addReview.php?Book_Key=' . $bookKey . '" class="add-review-button">Add a Review</a>';
+                }
 
+                $stmt->close();
+                ?>
+            </div>
+        </div>
 
-    // Fetch the reviews
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            // Display the review details
-            echo '<div class="review">';
-            echo '<p><strong>Username: </strong>' . $row['Username'] . '</p>';
-            echo '<p><strong>Title: </strong>' . $row['Title'] . '</p>';
-            echo '<p><strong>Review: </strong>' . $row['Review'] . '</p>';
-            echo '<p><strong>Rating: </strong>' . $row['Rating'] . '</p>';
-            echo '<p><strong>Date, Time: </strong>' . $row['Date'] . ', ' . $row['Time'] . '</p>';
-            echo '</div>';
-        }
-    }
+        <?php require_once 'footer.php'; ?>
+    </body>
+    </html>
+    <?php
+} else {
+    echo "Book not found.";
+}
 
-    // Display the "Add a review" button if the user is logged in
-    if (isset($_SESSION['username'])) {
-        echo '<br><a href="addReview.php?Book_Key=' . $bookKey . '" class="add-review-button">Add a Review</a>';
-    }
-
-    echo '</div></body></html>';
-
-    $stmt->close();
-    $conn->close();
-    include 'footer.php';
+$conn->close();
 ?>

@@ -1,54 +1,57 @@
 <?php
-    include 'header.php';
+
+include 'header.php';
+
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+
+if (!isset($_GET['Book_Key'])) {
+    echo "Book not found.";
+    exit();
+}
+
+$bookKey = $_GET['Book_Key'];
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "bookreview";
+
+  
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $username = $_SESSION['username'];
+    $title = $_POST['title'];
+    $review = $_POST['review'];
+    $rating = $_POST['rating'];
+    $status = "Pending";
+
+    $sql = "INSERT INTO tblreview (Book_Key, Username, Date, Time, Title, Review, Rating, Status)
+    VALUES (?, ?, CURDATE(), CURTIME(), ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("isssii", $bookKey, $username, $title, $review, $rating, $status);
+
+    if ($stmt->execute()) {
+        echo "Review added successfully.";
+        header("Location: bookDetails.php?Book_Key=" . $bookKey);
+        exit();
+    } else {
+        echo "Error: " . $stmt->error;
+    }
     
 
-    // Check if the user is logged in
-    if (!isset($_SESSION['username'])) {
-        header("Location: login.php");
-        exit();
-    }
-
-
-    // Check if the Book_Key is provided in the URL
-    if (!isset($_GET['Book_Key'])) {
-        echo "Book not found.";
-        exit();
-    }
-
-    $bookKey = $_GET['Book_Key'];
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
-        $username = $_SESSION['username'];
-        $title = $_POST['title'];
-        $review = $_POST['review'];
-        $rating = $_POST['rating'];
-        $status = "Pending";
-
-        // Prepare and execute the SQL statement to insert the review data
-        // Insert the review into the database
-        $sql = "INSERT INTO tblreview (Book_Key, Username, Date, Time, Title, Review, Rating, Status)
-        VALUES (?, ?, CURDATE(), CURTIME(), ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isssii", $bookKey, $username, $title, $review, $rating, $status);
-
-        if ($stmt->execute()) {
-            echo "Review added successfully.";
-            header("Location: bookDetails.php?Book_Key=" . $bookKey);
-            exit();
-        } else {
-            echo "Error: " . $stmt->error;
-        }
-        
-
-        $stmt->close();
-        $conn->close();
-    }
+    $stmt->close();
+    $conn->close();
+}
 ?>
 
 <!DOCTYPE html>

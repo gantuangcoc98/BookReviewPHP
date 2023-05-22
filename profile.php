@@ -1,24 +1,34 @@
 <?php
-    include 'header.php';
+include 'header.php';
 
-    if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-        header("location: login.php");
-        exit;
-    }
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("location: login.php");
+    exit;
+}
 
-    $sql = "SELECT userType FROM tbluseraccount WHERE Username = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $_SESSION['username']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "bookreview";
 
-    $userType = $row['userType'];
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT userType FROM tbluseraccount WHERE Username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $_SESSION['username']);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+$userType = $row['userType'];
+
+
 ?>
 
 <div class="container">
@@ -47,13 +57,19 @@
                 echo '<button class="profile-button" onclick="location.href=\'editProfile.php\'">Edit Profile</button>';
                 break;
             case 1:
-                echo '<button class="profile-button" onclick="location.href=\'validateReview.php\'">Validate Reviews</button>';
+                echo '<button class="profile-button" onclick="location.href=\'validateReview.php\'">Review Validations</button>';
+                echo '<button class="profile-button" onclick="location.href=\'banUser.php\'">Ban Management</button>';
+
                 break;
             case 2:
-                echo '<button class="profile-button" onclick="location.href=\'addBook.php\'">Manage Books</button>';
-                echo '<button class="profile-button" onclick="location.href=\'addAdmin.php\'">Manage Admins</button>';
-                echo '<button class="profile-button" onclick="location.href=\'addModerator.php\'">Manage Moderators</button>';
-                echo '<button class="profile-button" onclick="location.href=\'addCategory.php\'">Manage Categories</button>';
+                echo '<button class="profile-button" onclick="location.href=\'addBook.php\'">Add Books</button>';
+                echo '<button class="profile-button" onclick="location.href=\'addAdmin.php\'">Add Admins</button>';
+                echo '<button class="profile-button" onclick="location.href=\'addModerator.php\'">Add Moderators</button>';
+                echo '<button class="profile-button" onclick="location.href=\'addCategory.php\'">Add Categories</button>';
+                echo '<button class="profile-button" onclick="location.href=\'deleteAdmin.php\'">Delete Admin</button>';
+                echo '<button class="profile-button" onclick="location.href=\'deleteModerator.php\'">Delete Moderator</button>';
+                echo '<button class="profile-button" onclick="location.href=\'deleteUser.php\'">Delete User</button>';
+
                 break;
         }
         ?>

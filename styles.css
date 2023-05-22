@@ -14,7 +14,7 @@ body {
     height: calc(100vh - 60px);
     padding: 20px;
     margin-top: 60px;
-    overflow-x: hidden; /* Remove horizontal scroll */
+    overflow-x: hidden; 
 }
 .hello {
     margin-bottom: 20px;
@@ -56,10 +56,10 @@ h2 {
 
 .menu li a,
 .dropbtn {
-    display: block;
+    display: flex;
     color: white;
     text-align: center;
-    padding: 14px 16px;
+    padding: 16px 31px;
     text-decoration: none;
 }
 
@@ -192,8 +192,4 @@ form input[type="submit"] {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-}
-.container textarea {
-    width: 435px;
-    resize: horizontal;
 }

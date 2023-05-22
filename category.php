@@ -1,34 +1,40 @@
 <?php
-    require_once 'header.php';
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "bookreview";
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
 
-    // Check if category key is provided in the URL
-    if (isset($_GET['Category_Key'])) {
-        $categoryKey = $_GET['Category_Key'];
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-        // Retrieve category name
-        $categorySql = "SELECT Category_Name FROM tblcategory WHERE Category_Key = ?";
-        $stmt = $conn->prepare($categorySql);
-        $stmt->bind_param("i", $categoryKey);
-        $stmt->execute();
-        $categoryResult = $stmt->get_result();
-        $categoryRow = $categoryResult->fetch_assoc();
-        $categoryName = $categoryRow['Category_Name'];
 
-        // Retrieve books for the selected category using a join between tblbook and tblcategory
-        $booksSql = "SELECT b.* FROM tblbook b
-                    JOIN tblcategory c ON b.Category_Key = c.Category_Key
-                    WHERE c.Category_Key = ?";
-        $stmt = $conn->prepare($booksSql);
-        $stmt->bind_param("i", $categoryKey);
-        $stmt->execute();
-        $booksResult = $stmt->get_result();
-        $books = $booksResult->fetch_all(MYSQLI_ASSOC);
-    }
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if (isset($_GET['Category_Key'])) {
+    $categoryKey = $_GET['Category_Key'];
+
+
+    $categorySql = "SELECT Category_Name FROM tblcategory WHERE Category_Key = ?";
+    $stmt = $conn->prepare($categorySql);
+    $stmt->bind_param("i", $categoryKey);
+    $stmt->execute();
+    $categoryResult = $stmt->get_result();
+    $categoryRow = $categoryResult->fetch_assoc();
+    $categoryName = $categoryRow['Category_Name'];
+
+    $booksSql = "SELECT b.* FROM tblbook b
+                 JOIN tblcategory c ON b.Category_Key = c.Category_Key
+                 WHERE c.Category_Key = ?";
+    $stmt = $conn->prepare($booksSql);
+    $stmt->bind_param("i", $categoryKey);
+    $stmt->execute();
+    $booksResult = $stmt->get_result();
+    $books = $booksResult->fetch_all(MYSQLI_ASSOC);
+}
+
+include 'header.php';
 ?>
 
 <style>
@@ -54,7 +60,6 @@
                 echo '<div>';
                 echo '<h3>' . $book['Title'] . '</h3>';
                 echo '<p>Author: ' . $book['Authors_Firstname'] . ' ' . $book['Authors_Lastname'] . '</p>';
-                // Add more book information here as needed
                 echo '</div>';
                 echo '</a>';
             }

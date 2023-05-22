@@ -1,62 +1,61 @@
 <?php
-    include 'header.php';
+include 'header.php';
+if(!isset($_SESSION['username'])){
+    header("Location: login.php");
+    exit();
+}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "bookreview";
 
-    if(!isset($_SESSION['username'])){
-        header("Location: login.php");
-        exit();
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $firstname = $_POST['firstname'];
+    $lastname = $_POST['lastname'];
+    $email = $_POST['email'];
 
-
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $firstname = $_POST['firstname'];
-        $lastname = $_POST['lastname'];
-        $email = $_POST['email'];
-
-
-        // Check if the email is valid
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo "Invalid email format";
-            exit;
-        }
-
-
-        // Check if the user already exists
-        $sql = "SELECT * FROM tbluseraccount WHERE Username = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            echo "Moderator username already exists";
-            exit;
-        } else {
-
-            // Insert the user into the database with userType = 1 for moderator
-            $sql = "INSERT INTO tbluseraccount (Username, Password, userType, Firstname, Lastname, Email)
-                    VALUES (?, ?, 1, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssss", $username, $password, $firstname, $lastname, $email);
-
-            if ($stmt->execute()) {
-                echo "Moderator added successfully";
-            } else {
-                echo "Error: " . $stmt->error;
-            }
-                
-
-            $stmt->close();
-            $conn->close();
-        }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "Invalid email format";
+        exit;
     }
+
+
+    $sql = "SELECT * FROM tbluseraccount WHERE Username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        echo "Username already exists";
+        exit;
+    }
+
+
+    $sql = "INSERT INTO tbluseraccount (Username, Password, userType, Firstname, Lastname, Email)
+            VALUES (?, ?, 1, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssss", $username, $password, $firstname, $lastname, $email);
+
+    if ($stmt->execute()) {
+        echo "Moderator added successfully";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+        
+
+    $stmt->close();
+    $conn->close();
+}
 ?>
 
 

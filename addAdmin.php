@@ -1,55 +1,41 @@
 <?php
-    $title = "Add Admin";
-    require_once 'header.php';
+$title = "Add Admin";
+require_once 'header.php';
+if(!isset($_SESSION['username'])){
+  header("Location: index.php");
+  exit();
+}
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "bookreview";
 
-    if(!isset($_SESSION['username'])){
-    header("Location: index.php");
-    exit();
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['addAdmin'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $firstname = $_POST['firstname'];
+        $lastname = $_POST['lastname'];
+        $email = $_POST['email'];
+
+        $sql = "INSERT INTO tbluseraccount (Username, Password, userType, Firstname, Lastname, Email) VALUES (?, ?, 2, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssss", $username, $password, $firstname, $lastname, $email);
+        if ($stmt->execute()) {
+          echo "Admin added successfully";
+      } else {
+          echo "Error: " . $stmt->error;
+      }
     }
-
-
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-
-    // Handle form submission for adding admins
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_POST['addAdmin'])) {
-            $username = $_POST['username'];
-            $password = $_POST['password'];
-            $firstname = $_POST['firstname'];
-            $lastname = $_POST['lastname'];
-            $email = $_POST['email'];
-
-            // Perform any validation or checks here
-            
-            // Try to check if the username already exist
-            $sql = "SELECT * FROM tbluseraccount WHERE Username = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                echo "Admin username already exists";
-                exit;
-            } else {
-
-                $sql = "INSERT INTO tbluseraccount (Username, Password, userType, Firstname, Lastname, Email) VALUES (?, ?, 2, ?, ?, ?)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("sssss", $username, $password, $firstname, $lastname, $email);
-
-                if ($stmt->execute()) {
-                    echo "Admin added successfully";
-                } else {
-                    echo "Error: " . $stmt->error;
-                }
-            }
-
-        }
-    }
+}
 ?>
 
 <div class="container">
